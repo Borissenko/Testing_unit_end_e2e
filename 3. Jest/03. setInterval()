@@ -1,0 +1,113 @@
+setInterval()
+
+//КОД (счетчик обратного отсчета).
+    <div>{{ number }}</div>
+    <a @click="go">go</a>
+
+
+    data() {
+      return {
+        number: 5
+      }
+    },
+    methods: {
+      go() {
+        this.number = 7
+        let interval = setInterval(() => {
+
+          this.number -= 1
+
+          if (this.number === 0) {
+            clearInterval(interval)
+          }
+        }, 1000)
+      }
+    },
+
+
+//ТЕСТ
+import { mount } from '@vue/test-utils'
+import AppCountdown from '../AppCountdown'
+
+jest.useFakeTimers()   //мобилизация факового таймера, (№1)
+
+describe('AppCountdown', () => {
+
+    it('decrements the number', (done) => {
+        let wrapper = mount(AppCountdown)   //маунтим компонент и запускаем в нем функцию, (№2)
+
+        wrapper.find('a').trigger('click')  //<<= EXACTLY needed(!), mounted()- не пойдет. Иначе $nextTick не будет работать(!).
+
+        expect(wrapper.vm.number).toBe(7)       //проверяем результат запуска функции
+        expect(setInterval).toHaveBeenCalled() 
+        expect(setInterval).toBeCalledWith(expect.any(Function), 1000) //проверяем вовлекаемость (он- запускается) факового setInterval.
+
+
+        expect(setInterval).toBeCalledTimes(1)       //work. ???  сколько раз setInterval запустился.
+
+
+        jest.advanceTimersByTime(1000)       //запускаем факовый setInterval на интервал. Весь код, прописанный в нативном setInterval,- отрабатывает(№3)
+        expect(wrapper.vm.number).toBe(6)   //проверяем отработку setInterval.
+
+        jest.advanceTimersByTime(3000)       //ЗАПУСТИЛСЯ(!) 3 раза(!) кусками по 1000.
+        expect(wrapper.vm.number).toBe(3)    
+        expect(wrapper.vm.number).toBe(3)
+
+
+        wrapper.vm.$nextTick(() => {               //обновляем html, (№4)
+            expect(wrapper.html()).toContain('3')  //проверяем, как отработало тело setInterval.
+            done()
+        })
+
+        jest.clearAllTimers()        //останавливаем setInterval
+
+
+   //.............или запускаем setInterval через jest.runAllTimers().
+
+        jest.runAllTimers()                 // setInterval отрабатывает ДО своей ОСТАНОВКИ(!), ВСЕ циклы(!)
+        expect(wrapper.vm.number).toBe(0)   //КОНЕЧНОЕ значение после отработки ВСЕХ циклов
+
+        wrapper.vm.$nextTick(() => {
+            expect(wrapper.html()).toContain('0')  //проверяем, как отработало тело setInterval
+            done()
+        })
+
+        jest.clearAllTimers()
+
+    })
+})
+
+
+//NB!
+//$nextTick работает ТОЛЬКО при принудительном запуске тестируемой функции by 
+// wrapper.find('a').trigger('click') 
+
+//запуск go() через mounted()- не пойдет!
+
+
+
+
+.......................
+4/ ИСПОЛЬЗОВАНИЕ ИМИТАТОРА setInterval
+
+jest.useFakeTimers()
+jest.advanceTimersByTime(1000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

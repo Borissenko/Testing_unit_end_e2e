@@ -1,0 +1,8 @@
+ФУНКЦИИ ЖИЗНЕННОГО ЦИКЛА
+
+
+.....................
+beforeDestroy() {}
+
+const beforeDestroyedSpy = jest.spyOn(AlertMessage, 'beforeDestroy')
+expect(beforeDestroyedSpy).toHaveBeenCalled()

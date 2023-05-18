@@ -1,0 +1,72 @@
+# Тестирование изолированной функции:
+
+
+
+
+# Как тестировать, если js-файл имеет импорты?
+# Как тестировать плагин в изолированном виде?
+
+
+# e/ Тестирование изолированной функции, которая имеет Vue-зависимости.
+import { createApp } from 'vue'
+import apiPlugin from './features/APIService/apiPlugin'
+
+beforeAll(() => {
+  const app = createApp({})
+  app.use(apiPlugin)
+})
+/мой шедевр. ))
+
+
+
+
+# For Vue-3
+## Организация кода
+Обратиться к функции, прописанной в setup() - НЕ возможно.
+Поэтому все функции в Car.vue прописываем в отдельном js-файле,
+а далее импортируем их в Car.vue и в Car.spec.js.
+
+## Тестируем
+- изолированно запускаем функцию с определенными аргументами и верифицируем результат,
+- отслеживаем отработку функции via spy при подъеме компонента или при совершении Act.
+См. Vitest/ "03. spy.md"
+
+
+
+## или - доступ к функциям, прописанным в setup() - возможен???
+- но надо вызывать нативную функцию опосредованно???
+
+import Counter, { submitValidator } from './counter.vue'
+
+const actual = () => submitValidator(1)
+expect(actual).toBe(5)
+
+
+
+
+
+
+# For Vue-2
+//Car.vue
+  props: {
+    age: {
+      type: String,
+      required: true
+    }
+  },
+  computed: {
+    newAge() {
+      return this.age + 5
+    }
+  }
+
+
+//Car.spec.js
+- в тестируемой computed-функции у компонента Car.vue есть обращение к this.age.
+
+import Car from "@/components/Car.vue"
+
+const mockThis = { age: 50 }                           //<< имитируем среду, востребованную в тестируемой функции 
+expect(Car.computed.newAge.call(mockThis)).toBe(55)   //.call - key
+
+

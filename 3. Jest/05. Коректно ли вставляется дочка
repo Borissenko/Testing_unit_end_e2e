@@ -1,0 +1,22 @@
+Коректно ли вставляется дочка
+
+
+import {mount} from '@vue/test-utils'
+
+import AppCoursePlaylist from '../AppCoursePlaylist'     //тестируемый родитель
+import AppCoursePart from '../AppCoursePart'             //дочка, 2 шт.
+
+
+describe('AppCoursePlaylist', () => {
+  it('renders a list of parts', () => {
+    let wrapper = mount(AppCoursePlaylist})
+
+    expect(wrapper.findAll(AppCoursePart).length).toEqual(2)
+    expect(user).toMatchSnapshot()       //снимок будет содержать и html дочек, т.к. используется mount().
+  })
+})
+
+
+
+
+

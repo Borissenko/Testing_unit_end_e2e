@@ -1,0 +1,266 @@
+summary to install Jest
+
+A. =PURE_JEST=
+npm i -D
+jest
+babel-jest 
+@babel/preset-env
+"babel-core": "^7.0.0-bridge.0"  // НЕ ниже(!)
+@babel/core                      //можно не нужно, но по туториалу jest- нужно(!). Иначе async/away не работает (https://jestjs.io/docs/en/getting-started#using-babel).
+
+
+//.babelrc (это JSON)
+{
+  "preset": [
+    ["@babel/preset-env", {
+      "targets": {
+      "node": "current"
+      }
+    }]
+  ]
+}
+
+
+или
+
+//babel.config.js
+module.exports = {
+  presets: [
+    '@vue/cli-plugin-babel/preset',  //<== эту строчку надо убрать(!)
+    '@babel/preset-env',
+     {
+       targets: {
+         node: 'current',
+       },
+     }
+  ]
+}
+
+
+//
+psackege.json внутрь блока "jest":{} 
+или 
+jest.config.js внутрь блока module.exports = {} (см. ниже)
+
+ "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
+  }
+
+
+
+
+B. =JEST+VUE=
+vue-jest
+vue-template-compiler
+@vue/test-utils
+jest-serializer-vue
+
+
+//jest.config.js
+module.exports = {
+  verbose: true,
+  roots: ["<rootDir>/src/", "<rootDir>/specs/"],
+  moduleFileExtensions: ['js', 'vue'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  transform: {
+    "^.+\\.js$": "babel-jest",   //или можно "^.+\\.jsx?$": "babel-jest"
+    "^.+\\.vue$": "vue-jest"
+  },
+  snapshotSerializers: [
+    "<rootDir>/node_modules/jest-serializer-vue"
+  ]
+}
+
+
+
+
+
+C. Проверка работоспособности
+//specs/HelloWorld.spec.js
+
+describe('my_test', () => {
+  it('should ', () => {
+    expect(5).toBe(5)
+  });
+})
+
+
+import { mount } from '@vue/test-utils'
+import TestComponent from '../HelloWorld.vue'
+
+test('mount a vue component', () => {
+  const wrapper = mount(TestComponent, {
+    propsData: {         //если у компонента поступают данные через props, мы можем пропс задать сами.
+      msg: 'GO!'
+    }
+  })
+
+  expect(wrapper).toMatchSnapshot()
+})
+
+
+в консоле набираем:
+jest specs/HelloWorld.spec.js
+или 
+jest Hell                 //запускаются ВСЕ тесты, содержащие в своем названии "Hell".
+
+
+
+
+
+
+
+
+D. ДОПОЛНИТЕЛЬНО
+
+#Using TypeScript
+https://jestjs.io/docs/en/getting-started
+
+
+
+# добавляем поддержку для спрей-оператора (важно для тестирования ...mapActions({})(!))
+npm i babel-plugin-transform-object-rest-spread -D
+
+//.babelrc
+{
+  "plugins": [
+    "transform-object-rest-spread"
+  ]
+}
+ИЛИ
+//babel.config.js
+module.exports = {
+  plugins:  [
+    "transform-object-rest-spread"
+  ]
+}
+
+
+
+# добавляем псевдоним "@" - (но оно работает и так )) )
+npm i babel-plugin-module-resolver
+
+//.babelrc
+"plugins": [
+        ["module-resolver", {
+          "root": ["./src"],
+          "alias": {
+            "@": "./src"
+          }
+ }]]
+
+
+
+
+
+
+# удобство запуска Jest прописываем:
+//packej.json:
+  "scripts": {
+    "test": "jest --no-cache"
+  }
+
+
+
+
+
+
+#добавляем jest-serializer-vue
+https://github.com/eddyerburgh/jest-serializer-vue
+
+- не потребуется использовать 
+expect(wrapper.html()).toMatchSnapshot(), а можно буде сразу писать
+expect(wrapper).toMatchSnapshot()
+
+//yarn add jest-serializer-vue
+
+//jest.config.js
+module.exports = {
+  snapshotSerializers: [
+    "<rootDir>/node_modules/jest-serializer-vue"
+  ]
+}
+
+СРАВНИВАЮ:
+A=> C "jest-serializer-vue", 
+используя 
+expect(wrapper).toMatchSnapshot()  или
+expect(wrapper.html()).toMatchSnapshot(),
+в snapshat'e получим
+
+exports[`mount a vue component 1`] = `
+<div>
+  <h1>Hello VueSchool</h1>
+</div>
+`;
+
+B=> БЕЗ "jest-serializer-vue"
+а) expect(wrapper.html()).toMatchSnapshot()
+
+exports[`mount a vue component 1`] = `
+"<div>
+  <h1>Hello VueSchool</h1>
+</div>"
+`;
+
+б) expect(wrapper).toMatchSnapshot()
+
+exports[`mount a vue component 1`] = `
+VueWrapper {
+  "_emitted": Object {},
+  "_emittedByOrder": Array [],
+  "isFunctionalComponent": undefined,
+}
+`;
+
+
+
+
+
+
+#babel-plugin-transform-runtime
+
+-может пригодиться...
+https://babeljs.io/docs/en/6.26.3/babel-plugin-transform-runtime
+
+
+
+
+
+
+
+#КАК РЕЗЮМЕ
+где-либо, хотябы в package.json.js, дб прописано следующее
+
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "vue"
+    ],
+    "transform": {
+      ".*\\.(vue)$": "vue-jest",
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

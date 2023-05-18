@@ -1,0 +1,88 @@
+mixins
+
+1. код
+<template>
+  <div>
+    Hi, {{ userName.user.first_name }}.
+  </div>
+</template>
+
+<script>
+  import auth from '@/mixins/auth'
+
+  export default {
+    mixins: [
+      auth
+    ]
+  }
+</script>
+
+
+// mixins/auth.js
+
+export default {
+  computed: {
+    userName() {
+      return {
+        user: {
+          first_name: 'Alex'
+        }
+      }
+    }
+  }
+}
+
+
+2. Make shear thet be
+//package.json.js или jest.config.js для распознования @/.
+
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  }
+
+
+
+
+3.Test
+
+import {mount} from '@vue/test-utils'
+import AppGreeting from '../AppGreeting'
+// import auth from '@/mixins/auth'          //первый способ- привлечение нативного миксина.
+
+describe('AppGreeting', () => {
+  it('greets the user by their first name', () => {
+
+    let auth = {         //второй способ- привлечение факового миксина.
+      computed: {
+        userName() {
+          return {
+            user: {
+              first_name: 'Alex'
+            }
+          }
+        }
+      }
+    }
+
+    let wrapper = mount(AppGreeting, {
+      mixins: [
+        auth
+      ]
+    })
+
+    expect(wrapper.html()).toContain('Alex')
+  })
+})
+
+
+
+
+
+
+
+
+
+
+
+
+

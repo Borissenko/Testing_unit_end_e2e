@@ -1,0 +1,64 @@
+13. It cleans up after a component is destroyed
+
+
+Проверяем, удалияется ли тестируемый компонент из ДОМа, когда мы переходим на другую страницу, 
+и срабатывание кода внутри destroyed(), что самое важное для тестинга.
+
+//код
+    destroyed() {
+      this.player = null
+    },
+    mounted() {
+      this.player = 'yes'
+    }
+
+//тест
+describe('AppPlayer', () => {
+  it('clears up when destroyed', () => {
+    let wrapper = mount(AppPlayer)
+
+    wrapper.destroy()        //имитируем уход с текущей страницы 
+    expect(wrapper.vm.player).toBe(null)  //проверяем исполнение кода внутри destroyed()
+  })
+})
+
+
+
+
+ЛЕКЦИЯ 6
+ПРОВЕРЯЕМ ХУКИ ЖИЗНЕННОГО ЦИКЛА - destroy().
+
+5/проверяем, запускается ли функция из-за какого-то действия.
+(здесь проверяю запуститься ли beforeDestroy() из-за запуска ff)
+
+- создаем SPY, подменка реальной функции.
+const spy = jest.spyOn(Car, 'beforeDestroy') 
+
+- поднимаем компонент
+const wrapper = mount(Car)
+
+- запускаем код, который ДОЛЖЕН ЗАПУСТИТЬ тестируемую функцию
+function ff(){
+  this.$destroy()          //$destroy()- запускает тестируемую функцию
+}
+
+т.е прописываем
+wrapper.vm.ff
+
+Если этот код помещен в SetTimeout(ff, 1000),
+то провоцируем запуск SetTimeout by 
+jest.advanceTimersByTime(1000)  //переводит все счетчики в фазу 1000мс
+
+- теперь подтверждаем, привел ли запуск ff к запуску beforeDestroy()
+expect(spy).toHaveBeenCalled()
+
+
+
+
+
+
+
+
+
+
+

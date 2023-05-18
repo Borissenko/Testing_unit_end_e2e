@@ -1,0 +1,82 @@
+watch()
+
+в отличие от computed() выполнение watch() откладывается до следующего цикла обновления, 
+который Vue использует для поиска изменений. 
+Поэтому надо добавлять $nextTick или наблюдаемую переменную изменяем не непосредственно, а by setData() или при подъеме компонента.
+
+
+КОД
+  data: () => ({
+    inputValue: ''
+  }),
+  watch: {
+    inputValue(newVal, oldVal) {
+      console.log(newVal, oldVal)
+    }
+  }
+
+
+
+ТЕСТ
+a)
+  describe('Watchers inputValue', () => {
+
+    it('изменяем inputValue by vm', done => {    //см. https://jestjs.io/docs/en/asynchronous.html
+      let  spy = jest.spyOn(console, 'log')      //задаем шпиона на console.log
+
+      let wrapper = shallowMount(Form)               //поднимаем компонент
+      wrapper.vm.inputValue = 'foo'       //(!)изменяем inputValue непосредственным образом by vm.
+
+      wrapper.vm.$nextTick(() => {
+        expect(spy).toBeCalled()
+        done()
+      })
+
+      // spy.mockClear()   //НЕ нужен!
+
+    })
+
+
+
+
+б)  = Однако, если значение inputValue изменять by setData() или при подъеме компонента, то $nextTick не потребуется.
+   Здесь компонент мы - поднимаем.
+
+   it('изменяем inputValue by setData()', () => {
+
+     let spy = jest.spyOn(console, 'log')
+
+     wrapper = shallowMount(Form, {
+       data: () => ({                         //задаем изначальное значение inputValue при подьеме компонента
+         inputValue: 'foo'                   //это ТОЖЕ ТРИГГЕРИТ ватчер(!)
+       })
+     })
+
+     wrapper.setData({ inputValue: 'foo' })   //(!)изменяем inputValue by setData
+
+     expect(spy).toBeCalled()
+
+     spy.mockClear()
+   })
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

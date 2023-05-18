@@ -1,0 +1,120 @@
+Тестирование router-link
+
+//Component
+  <router-link :to="to">
+    {{ text }}
+  </router-link>
+
+
+
+//TEST, способ-1.
+При тестировании компонента в изолированном виде <router-link> не распознается. Поэтому надо съемитировать Vue-router, а для этого- съемитировать Vue-экземпляр.
+
+import {mount, createLocalVue} from '@vue/test-utils'
+import VueRouter from 'vue-router'
+import AppButton from '../AppButton'
+
+const localVue = createLocalVue()     //подмена Vue-экземпляра
+localVue.use(VueRouter)               //подмена роутера
+const router = new VueRouter({       //заявление роутов в роутере-заглушке.
+  mode: 'history',                   //что бы не было # в href="#/dashboard".
+  routes: [
+    {
+      name: 'dashboard',
+      path: '/dashboard'
+    }
+  ]
+})
+
+
+describe('AppButton', () => {
+  it('renders the button text', () => {
+
+    let wrapper = mount(AppButton, {
+      localVue,      //подключение тестируемого компонента к обманкам Vue-экземпляра и роутера.
+      router,
+      propsData: {            //пропс-заглушки в тестируемом файле
+        text: 'Go_to_dashboard' ,
+        to: {
+          name: 'dashboard'
+        }
+      } 
+    })
+
+    expect(wrapper.html()).toContain('Go_to_dashboard')
+    expect(wrapper.find('a').text()).toContain('Go_to_dashboard')
+    expect(wrapper.find('a').attributes().href).toContain('/dashboard')     // href="#/dashboard"
+  })
+})
+
+
+
+
+
+//TEST, способ-2.
+Не маунтим компонент, имитируя роутер,
+а используем стандартную болванку для <router-link>.
+
+A глобальную переменную $route подменяем маковой(!).
+
+import {mount, RouterLinkStub} from '@vue/test-utils'
+import AppProSignIn from '../AppProSignIn'
+
+describe('AppProSignIn', () => {
+
+  const $route = {
+    fullPath: '/dashboard'
+  }
+
+  it('renders a sign in link', () => {
+    let wrapper = mount(AppProSignIn, {
+      stubs: {
+        RouterLink: RouterLinkStub  //заглушка на RouterLink
+      },
+      mocks: {
+        $route  //присваеваем mocks-переменную как значение глобальной переменной $route. ($route: $route).
+      }
+    })
+    console.log('wrapper.find(\'a\').props()', wrapper.find('a').props())
+    expect(wrapper.find('a').props().to.name).toEqual('auth-signin')
+    //проверка наличия у <a> пропс-показателя :to="" со значением 'auth-signin'.
+
+
+    //В RouterLink загоняется query: { redirect: $route.fullPath },
+    //  что бы потом можно было бы вернуться на ровно эту же страницу.
+    //  Значение для этой квери берем из mocks-переменной.
+    expect(wrapper.find('a').props().to.query.redirect).toEqual('/dashboard')
+  })
+})
+
+
+
+// Здесь мы имеем:
+// <router-link
+// :to="{ name: 'auth-signin', query: { redirect: $route.fullPath } }"
+// >
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

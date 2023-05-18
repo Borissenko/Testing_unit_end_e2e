@@ -1,0 +1,20 @@
+Мы изменяем inputValue непосредственным образом, обращаясь к свойству vm.
+поэтому, нам нужно использовать функцию vm.$nextTick,
+чтобы отложить выполнение кода до следующего цикла обновления:
+
+
+    it('изменяем inputValue by vm', done => {    //см. https://jestjs.io/docs/en/asynchronous.html
+      let  spy = jest.spyOn(console, 'log')      //задаем шпиона на console.log
+
+      let wrapper = shallowMount(Form)               //поднимаем компонент
+      wrapper.vm.inputValue = 'foo'       //(!)изменяем inputValue НЕПОСРЕДСТВЕННЫМ образом, by vm.
+
+      wrapper.vm.$nextTick(() => {
+        expect(spy).toBeCalled()
+        done()
+      })
+
+      // spy.mockClear()   //НЕ нужен! или... все-таки нужен?
+
+    })
+

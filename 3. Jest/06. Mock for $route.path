@@ -1,0 +1,17 @@
+Заглушка на глобальную переменную $route.path
+
+
+describe('AppReveal', () => {
+ test('mount a vue component', () => {
+  const route = { path: 'http://www.example.com' }     //целевое значение
+    
+  const wrapper = mount(TestComponent, {
+    mocks: {
+      $route: route  //заглушка на глобальную переменную(значение см выше). См <router-link>.
+    }
+   })
+  })
+
+  expect(wrapper).toMatchSnapshot()                //проверка соответствию снимка
+  expect(wrapper.html()).toMatchSnapshot()         //проверка соответствию снимка, если не используем "jest-serializer-vue"
+})

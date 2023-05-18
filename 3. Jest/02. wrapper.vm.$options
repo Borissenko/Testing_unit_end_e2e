@@ -1,0 +1,25 @@
+wrapper.vm.$options
+
+-все о поднятом компоненте можно почерпнуть в wrapper.vm.$options
+
+# по пропсу
+wrapper.vm.$options.props.text.type   //тип поступающей в пропс переменной
+expect(wrapper.vm.$options.props.message.type).toBe(String)
+expect(wrapper.vm.$options.props.message.required).toBeFalsy())
+expect(wrapper.vm.$options.props.message.validator && wrapper.vm.$options.props.message.validator('a')).toBeFalsy()
+expect(wrapper.vm.$options.props.message.validator && wrapper.vm.$options.props.message.validator('aa')).toBeTruthy()
+
+хотя есть и второй способ добраться до ЗНАЧЕНИЯ пропса
+expect(wrapper.props().message).toBe('Петя')
+но проверку валидации у пропса так не сделаешь.
+
+
+# и так далее
+...
+
+
+
+
+
+
+

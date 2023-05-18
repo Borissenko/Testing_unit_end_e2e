@@ -1,0 +1,195 @@
+По клику ПО КНОПКЕ переходим на другую станицу
+
+
+  <form action="#" @submit.prevent="send">
+    <button type="submit">Send</button>
+  </form>
+
+    methods: {
+      send() {
+        if (this.$route.query.redirect) {
+          this.$router.push(this.$route.query.redirect)
+          return
+        }
+        //второй тест
+        //при наличии квери в текущем роуте, в котором прописано, куда надо пушиться, 
+        //пушимся именно туда.
+
+
+        this.$router.push({ 
+          name: 'dashboard'
+        })
+        //первый тест. Пушимся на заранее определенный роут.
+      }
+    }
+
+...................
+//ТЕСТ
+
+A. Создаем router-обманку
+что бы 'срабатывал' "this.$route" делаем заглушку на роутер.
+
+import VueRouter from 'vue-router'
+import {createLocalVue} from '@vue/test-utils'
+
+const localVue = createLocalVue()
+localVue.use(VueRouter)
+
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    {
+      name: 'home',
+      path: '/home'
+    },
+    {
+      name: 'dashboard',
+      path: '/dashboard'
+    }
+  ]
+})
+
+
+
+
+По-умолчанию значения wrapper.vm.$route будут "нулевыми", только  path: '/':
+console.log('wrapper.vm.$route ===', wrapper.vm.$route)
+
+  console.log
+    wrapper.vm.$route {
+      name: null,
+      meta: {},
+      path: '/',
+      hash: '',
+      query: {},
+      params: {},
+      fullPath: '/',
+      matched: []
+    }
+
+Их можно переопределить:
+router.push({
+   name: 'home',
+   query: {
+     redirect: '/dashboard'
+  }
+})
+
+NB!
+Значения в wrapper.vm.$route СОХРАНЯЮТСЯ от предыдущего теста!
+
+
+
+
+Б. Собственно тест
+import {mount} from '@vue/test-utils'
+import SignIn from '../SignIn'
+
+
+describe('Push_to без наличия квери', () => {
+  it('пуш после "нажатия" кнопки', () => {
+
+    router.push({   //обнуляем квери, которое было создано нами чуть выше.
+      query: {}
+    })
+
+    let wrapper = mount(SignIn, {
+      localVue,
+      router
+    })
+
+    wrapper.find('form').trigger('submit')
+    expect(wrapper.vm.$route.path).toEqual('/dashboard')
+
+    //при "trigger('submit')" пошел пуш на "name: 'dashboard'",
+    //и поэтому в $route.path мы получим '/dashboard'
+  })
+
+  //фактически здесь проверяется срабатывание @submit-обработчика,
+  // а код в send()
+  // this.$router.push({
+  //   name: 'dashboard'
+  // })
+  // запускает не реальный роут, а роут-обманку,
+  // и далее в роуте-обманке  меняет текущую страницу на 'dashboard'.
+  // Поэтому значение $route.path у роут-обманки становиться '/dashboard'.
+  //   Т.е. здесь мы реально тестируем
+  // - срабатывание send() по клику на <form @submit.prevent="send">,
+  // - работу роута-обманки )),
+  // но не работу реального VueRouter.
+
+
+
+  it('пуш на роут, который прописан в квери текущей страницы', () => {
+
+    router.push({
+      query: {
+        redirect: '/'
+      }
+    })
+    //Прописываем квери в текущем роуте:
+    //with роут-обманкой пушимся на эту же, текущую, страницу,
+    //но задавая при этом в текущем адресе значение query.redirect.
+
+
+    let wrapper = mount(SignIn, {
+      localVue,
+      router
+    })
+
+    wrapper.find('form').trigger('submit')
+    expect(wrapper.vm.$route.path).toEqual('/')
+  })
+
+  //В тестируемом компоненте код "this.$route.query.redirect" обращается к роуту-обманке.
+  //Здесь мы проверяем работу кода "this.$route.query.redirect",
+  // работу роута-ОБМАНКИ,
+  // но не проверяем работу реального VueRouter.
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

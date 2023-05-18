@@ -1,0 +1,67 @@
+Тестируем ребенка, который содержит <input>,
+в который опускается поток by v-model'ом из родителя
+и эмитится луч вверх при событии @input.
+
+//Родитель
+  <div>
+    <AppFormInput v-model="body"/>
+    {{body}}
+  </div>
+
+
+//Ребенок
+<template>
+  <input
+          type="text"
+          :value="modelValue"
+          @input="$emit('input', $event.target.value)"
+  >
+</template>
+
+export default {
+    model: {              // это параметры v-model, прописанного в родителе
+      prop: 'modelValue',
+      event: 'input'
+    },
+    props: {
+      modelValue: {
+        default: undefined
+      }
+    }
+}
+
+//тестируем ребенка
+describe('AppFormInput', () => {
+
+А)
+  it('sets the initial model value', () => {
+    let wrapper = mount(AppFormInput, {       //маунтим ребенка, ставя заглушку на его props.
+      propsData: {
+        modelValue: 'cats'
+      }
+    })
+
+   //считываем значение импута, который получен инпутом ИЗ ПРОПСА
+    expect(wrapper.find('input').element.value).toEqual('cats') 
+  })
+
+
+
+Б)
+  it('emits the current input value when typing', () => {
+    let wrapper = mount(AppFormInput)
+    let input = wrapper.find('input')  //маунтим ребенка, пропс не перетираем, он будет по-умолчанию (undefined).
+
+    input.element.value = 'cats'  //забиваем в инпут текст 'cats'
+    input.trigger('input')     //для value инпута присуждается вбитое значение и запускаем луч одновременно.
+   (?? см. пример В.)
+    expect(wrapper.emitted().input).toBeTruthy()    //луч 'input'- посылается.
+    expect(wrapper.emitted().input[0][0]).toEqual('cats')  //считываем значение луча и сравниваем его с 'cats'.
+  })
+})
+
+
+
+В) См. раздел "$nextTick()"
+
+
