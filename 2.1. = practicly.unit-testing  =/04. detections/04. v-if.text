@@ -1,0 +1,11 @@
+# присутствие в DOM тега
+
+# v-if
+expect(.find('.my-div').exists()).toBe(true)
+
+# v-show
+.isVisible()
+
+
+
+

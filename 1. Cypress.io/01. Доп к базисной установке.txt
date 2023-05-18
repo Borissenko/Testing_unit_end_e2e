@@ -1,0 +1,46 @@
+# Что надо сделать дополнительно к базисной установке
+
+# .gitignore
+- добавляем
+
+screenshotsFolder/
+videosFolder/ 
+
+downloads/
+screenshots/
+videos/
+
+
+
+
+# cypress.env.json
+- see to:
+  - "06. D. = my_env.md".
+  - https://docs.cypress.io/guides/guides/environment-variables#Setting
+
+
+
+
+
+# cypress.config.js
+//https://docs.cypress.io/guides/references/configuration#Configuration-File
+
+- см "01. cypress.config.js.md"
+
+
+Дописываем:
+export default defineConfig({
+  e2e: {
+    specPattern: 'cypress/e2e/**/*.{cy,spec}.{js,jsx,ts,tsx}',
+    baseUrl: 'http://localhost:3000'        //<<
+  },
+  env: {
+    baseUrl: 'http://localhost:3000'     //<<
+  }
+})
+
+
+
+
+
+

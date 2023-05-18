@@ -1,0 +1,38 @@
+# setTimeout
+
+# подготовка
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+
+
+
+#  запускаем исстелуемую функцию, которая содержит setTimeout
+doIt()
+
+или
+vi.runAllTimers()
+
+тестируем последствия запуска doIt() или колбеков в реальных setTimeout
+
+
+
+
+
+# vi.runAllTimers
+
+let i = 0
+setTimeout(() => console.log(++i))
+
+const interval = setInterval(() => {
+  console.log(++i)
+
+  if (i === 3)
+    clearInterval(interval)
+}, 50)
+
+vi.runAllTimers()

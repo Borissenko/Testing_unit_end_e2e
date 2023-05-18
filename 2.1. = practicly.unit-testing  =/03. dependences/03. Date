@@ -1,0 +1,58 @@
+# Date()
+- если в коде есть Date(), мы можем, что бы Date(), запускаясь, выдавала нами заданную дату, а не текущую реальную.
+Тем самым мы можем предугадать результат работы кода,
+и поставить этот рузультат как эталонный для срванения в тесте.
+
+
+import { vi, afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+describe('purchasing flow', () => {
+  beforeEach(() => {
+    // tell vitest we use mocked time
+>   vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    // restoring date after each test run
+>   vi.useRealTimers()
+  })
+
+
+  it('allows purchases within business hours', () => {
+    // set fake 'current time'
+    const fakeTime = new Date(2000, 1, 1, 13)
+>   vi.setSystemTime(fakeTime)
+    //проверяем, что замокали эффестивно
+    expect(new Date().valueOf()).toBe(fakeTime.valueOf())
+
+    // access Date.now() will result in the date set above
+    expect(testedFunction()).toEqual('testedFunctionRetern')
+  })
+
+В теле  testedFunction есть new Date().
+Она будет получаться не реальной, а того момента, который мы определили by vi.setSystemTime(fakeTime).
+От значения даты зависит результат работы testedFunction, который мы заранее спрогнозировали
+и поставили как эталон для проверки.
+
+})
+
+
+## доп-но для Date.now
+vi.getMockedSystemTime
+vi.getRealSystemTime
+
+vi.restoreCurrentDate
+
+
+
+////
+//https://vitest.dev/guide/mocking.html#cheat-sheet
+const mockDate = new Date(2022, 0, 1)
+
+vi.setSystemTime(mockDate)
+const now = new Date()
+
+expect(now.valueOf()).toBe(mockDate.valueOf())
+
+// reset mocked time
+vi.useRealTimers()

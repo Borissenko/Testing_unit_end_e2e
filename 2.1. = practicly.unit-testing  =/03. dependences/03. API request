@@ -1,0 +1,9 @@
+# API request
+
+# Mock Service Worker
+We recommend Mock Service Worker. It works by intercepting the requests your tests make
+см https://vitest.dev/guide/mocking.html#configuration
+
+
+
+
